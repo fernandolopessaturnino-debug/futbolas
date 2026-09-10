@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Futbolas</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    user-select:none;
+    -webkit-user-select:none;
+}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#111;
+    font-family:Arial,sans-serif;
+    touch-action:none;
+}
+
+canvas{
+    display:block;
+    width:100%;
+    height:100%;
+}
+
+/* SITE */
+
+#siteHeader{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:58px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 18px;
+    background:rgba(8,8,12,.88);
+    backdrop-filter:blur(10px);
+    z-index:50;
+    border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+#siteBrand{
+    font-size:22px;
+    font-weight:900;
+    color:white;
+}
+
+#siteBrand span{
+    color:#35a0ff;
+}
+
+#siteInfo{
+    position:fixed;
+    left:50%;
+    bottom:12px;
+    transform:translateX(-50%);
+    z-index:45;
+    color:rgba(255,255,255,.65);
+    font-size:12px;
+    background:rgba(0,0,0,.45);
+    padding:6px 10px;
+    border-radius:10px;
+}
+
+/* MENU */
+
+#menu{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(#111,#202020);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:20;
+}
+
+#menu h1{
+    display:none;
+}
+
+#logoMenu{
+    width:min(78vw,520px);
+    max-height:48vh;
+    object-fit:contain;
+    margin-bottom:25px;
+    filter:drop-shadow(0 8px 12px rgba(0,0,0,.6));
+}
+
+#jogar{
+    border:0;
+    background:#22c55e;
+    color:white;
+    font-size:30px;
+    font-weight:bold;
+    padding:18px 65px;
+    border-radius:18px;
+    box-shadow:0 7px #16803d;
+}
+
+#jogar:active{
+    transform:translateY(6px);
+    box-shadow:0 1px #16803d;
+}
+
+/* HUD */
+
+#hud{
+    position:absolute;
+    top:65px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:5;
+    color:white;
+    background:rgba(0,0,0,.55);
+    padding:7px 18px;
+    border-radius:15px;
+    font-size:26px;
+    font-weight:bold;
+    white-space:nowrap;
+    text-align:center;
+}
+
+.azul{
+    color:#35a0ff;
+}
+
+.vermelho{
+    color:#ff4545;
+}
+
+#tempo{
+    display:inline-block;
+    min-width:58px;
+    color:white;
+}
+
+#fase{
+    display:block;
+    font-size:13px;
+    color:#ddd;
+    margin-top:2px;
+}
+
+/* MENSAGEM */
+
+#mensagem{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    color:white;
+    font-size:48px;
+    font-weight:bold;
+    text-shadow:0 5px #000;
+    opacity:0;
+    z-index:10;
+    pointer-events:none;
+    white-space:nowrap;
+    text-align:center;
+}
+
+/* ANALÓGICO */
+
+#analogico{
+    position:absolute;
+    left:25px;
+    bottom:25px;
+    width:155px;
+    height:155px;
+    border-radius:50%;
+    background:rgba(255,255,255,.12);
+    border:3px solid rgba(255,255,255,.25);
+    z-index:8;
+    touch-action:none;
+}
+
+#analogoCentro{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:70px;
+    height:70px;
+    margin-left:-35px;
+    margin-top:-35px;
+    border-radius:50%;
+    background:rgba(255,255,255,.45);
+    border:3px solid rgba(255,255,255,.7);
+    box-shadow:0 4px 10px rgba(0,0,0,.4);
+    pointer-events:none;
+}
+
+/* CHUTAR */
+
+#chutar{
+    position:absolute;
+    right:30px;
+    bottom:35px;
+    width:125px;
+    height:125px;
+    border-radius:50%;
+    border:5px solid rgba(255,255,255,.8);
+    background:#ff8500;
+    color:white;
+    font-size:20px;
+    font-weight:bold;
+    z-index:8;
+    box-shadow:0 7px #a95500;
+    touch-action:none;
+}
+
+#chutar:active{
+    transform:translateY(7px);
+    box-shadow:0 1px #a95500;
+}
+
+/* FIM */
+
+#fim{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.78);
+    z-index:15;
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    color:white;
+    text-align:center;
+}
+
+#fim h2{
+    font-size:55px;
+    margin:0 0 15px;
+}
+
+#resultadoFinal{
+    font-size:32px;
+    font-weight:bold;
+}
+
+#novoJogo{
+    margin-top:30px;
+    border:0;
+    background:#22c55e;
+    color:white;
+    font-size:23px;
+    font-weight:bold;
+    padding:15px 35px;
+    border-radius:15px;
+}
+
+@media(max-width:600px){
+
+    #siteHeader{
+        height:42px;
+        padding:0 12px;
+    }
+
+    #siteBrand{
+        font-size:17px;
+    }
+
+    #logoMenu{
+        width:min(88vw,430px);
+        max-height:42vh;
+        margin-bottom:18px;
+    }
+
+    #hud{
+        top:48px;
+        font-size:21px;
+        padding:6px 13px;
+    }
+
+    #fase{
+        font-size:11px;
+    }
+
+    #analogico{
+        width:140px;
+        height:140px;
+        left:18px;
+        bottom:18px;
+    }
+
+    #analogoCentro{
+        width:65px;
+        height:65px;
+        margin-left:-32.5px;
+        margin-top:-32.5px;
+    }
+
+    #chutar{
+        width:105px;
+        height:105px;
+        right:18px;
+        bottom:20px;
+        font-size:17px;
+    }
+
+    #mensagem{
+        font-size:34px;
+    }
+
+    #fim h2{
+        font-size:40px;
+    }
+
+    #resultadoFinal{
+        font-size:25px;
+    }
+
+    #siteInfo{
+        font-size:10px;
+        bottom:5px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="siteHeader">
+    <div id="siteBrand">⚽ <span>Futbolas</span></div>
+    <div style="color:#ddd;font-size:13px;font-weight:bold">
+        2D FOOTBALL
+    </div>
+</div>
+
+<div id="siteInfo">
+    Futbolas • Jogue agora ⚽
+</div>
+
+<canvas id="game"></canvas>
+
+<!-- MENU -->
+
+<div id="menu">
+
+    <img
+        id="logoMenu"
+        alt="Futbolas"
+        src="data:image/png;base64,COLE_AQUI_A_IMAGEM_DA_LOGO"
+    >
+
+    <button id="jogar">
+        JOGAR
+    </button>
+
+</div>
+
+<!-- HUD -->
+
+<div id="hud" style="display:none">
+
+    <span class="azul">
+        AZUL
+    </span>
+
+    &nbsp;
+
+    <span id="placar">
+        0 - 0
+    </span>
+
+    &nbsp;
+
+    <span class="vermelho">
+        VERMELHO
+    </span>
+
+    <br>
+
+    <span id="tempo">
+        1:30
+    </span>
+
+    <span id="fase">
+        TEMPO NORMAL
+    </span>
+
+</div>
+
+<div id="mensagem"></div>
+
+<!-- CONTROLES -->
+
+<div id="analogico" style="display:none">
+    <div id="analogoCentro"></div>
+</div>
+
+<button id="chutar" style="display:none">
+    ⚽<br>
+    CHUTAR
+</button>
+
+<!-- FIM -->
+
+<div id="fim">
+
+    <h2 id="tituloFim">
+        FIM DE JOGO
+    </h2>
+
+    <div id="resultadoFinal">
+        0 - 0
+    </div>
+
+    <button id="novoJogo">
+        JOGAR NOVAMENTE
+    </button>
+
+</div>
+
+<script>
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+let W=window.innerWidth;
+let H=window.innerHeight;
+
+let jogo=false;
+let partidaTerminou=false;
+
+/* CAMPO */
+
+const campo={
+    x:0,
+    y:0,
+    w:0,
+    h:0
+};
+
+function criarCampo(){
+
+    campo.w=Math.min(W-30,1100);
+    campo.h=Math.min(H-45,650);
+
+    campo.x=(W-campo.w)/2;
+    campo.y=(H-campo.h)/2+10;
+}
+
+/* RESIZE */
+
+function resize(){
+
+    W=window.innerWidth;
+    H=window.innerHeight;
+
+    canvas.width=W*devicePixelRatio;
+    canvas.height=H*devicePixelRatio;
+
+    canvas.style.width=W+"px";
+    canvas.style.height=H+"px";
+
+    ctx.setTransform(
+        devicePixelRatio,
+        0,
+        0,
+        devicePixelRatio,
+        0,
+        0
+    );
+
+    criarCampo();
+
+    if(jogo && !partidaTerminou){
+        resetarPosicoes();
+    }
+}
+
+window.addEventListener("resize",resize);
+
+/* JOGADORES */
+
+const azul={
+    x:0,
+    y:0,
+    r:25,
+    velocidade:4.5,
+    dirX:1,
+    dirY:0,
+    cor:"#1683ff"
+};
+
+const vermelho={
+    x:0,
+    y:0,
+    r:25,
+    velocidade:3.1,
+    dirX:-1,
+    dirY:0,
+    cor:"#ef3333",
+    ultimoChute:0
+};
+
+/* BOLA */
+
+const bola={
+    x:0,
+    y:0,
+    r:14,
+    vx:0,
+    vy:0
+};
+
+/* PLACAR */
+
+let golsAzul=0;
+let golsVermelho=0;
+
+/* TEMPO */
+
+let tempoRestante=90;
+let acrescimo=0;
+let fase="normal";
+let intervaloTempo=null;
+
+/* PLACAR */
+
+function atualizarPlacar(){
+
+    document.getElementById("placar").textContent=
+        golsAzul+" - "+golsVermelho;
+}
+
+/* TEMPO */
+
+function atualizarTempo(){
+
+    let segundos=Math.max(
+        0,
+        Math.ceil(tempoRestante)
+    );
+
+    let minutos=Math.floor(segundos/60);
+    let seg=segundos%60;
+
+    document.getElementById("tempo").textContent=
+        minutos+":"+(seg<10?"0":"")+seg;
+
+    if(fase==="normal"){
+
+        document.getElementById("fase").textContent=
+            acrescimo>0
+            ?"ACRÉSCIMO +"+acrescimo+"s"
+            :"TEMPO NORMAL";
+    }
+
+    if(fase==="prorrogacao"){
+
+        document.getElementById("fase").textContent=
+            "PRORROGAÇÃO";
+    }
+}
+
+/* POSIÇÕES */
+
+function resetarPosicoes(){
+
+    azul.x=campo.x+campo.w*.25;
+    azul.y=campo.y+campo.h/2;
+
+    vermelho.x=campo.x+campo.w*.75;
+    vermelho.y=campo.y+campo.h/2;
+
+    azul.dirX=1;
+    azul.dirY=0;
+
+    vermelho.dirX=-1;
+    vermelho.dirY=0;
+
+    bola.x=campo.x+campo.w/2;
+    bola.y=campo.y+campo.h/2;
+
+    bola.vx=0;
+    bola.vy=0;
+}
+
+/* MENSAGEM */
+
+function mostrarMensagem(texto){
+
+    const m=document.getElementById("mensagem");
+
+    m.textContent=texto;
+    m.style.opacity="1";
+
+    setTimeout(()=>{
+        m.style.opacity="0";
+    },1200);
+}
+
+/* GOL */
+
+let esperandoReinicio=false;
+
+function gol(time){
+
+    if(
+        esperandoReinicio ||
+        partidaTerminou
+    ){
+        return;
+    }
+
+    esperandoReinicio=true;
+
+    if(time==="azul"){
+
+        golsAzul++;
+
+        mostrarMensagem(
+            "⚽ GOL DO AZUL!"
+        );
+
+    }else{
+
+        golsVermelho++;
+
+        mostrarMensagem(
+            "⚽ GOL DO VERMELHO!"
+        );
+    }
+
+    atualizarPlacar();
+
+    bola.vx=0;
+    bola.vy=0;
+
+    setTimeout(()=>{
+
+        if(jogo && !partidaTerminou){
+
+            resetarPosicoes();
+
+            esperandoReinicio=false;
+        }
+
+    },1200);
+}
+
+/* ANALÓGICO */
+
+let analogX=0;
+let analogY=0;
+
+const analogico=
+    document.getElementById("analogico");
+
+const centro=
+    document.getElementById("analogoCentro");
+
+let usandoAnalogico=false;
+
+function moverAnalogico(e){
+
+    const rect=
+        analogico.getBoundingClientRect();
+
+    const cx=
+        rect.left+rect.width/2;
+
+    const cy=
+        rect.top+rect.height/2;
+
+    let dx=e.clientX-cx;
+    let dy=e.clientY-cy;
+
+    const distancia=
+        Math.hypot(dx,dy);
+
+    const limite=
+        rect.width/2-35;
+
+    if(distancia>limite){
+
+        dx=dx/distancia*limite;
+        dy=dy/distancia*limite;
+    }
+
+    analogX=dx/limite;
+    analogY=dy/limite;
+
+    centro.style.transform=
+        `translate(${dx}px,${dy}px)`;
+
+    if(
+        Math.abs(analogX)>.05 ||
+        Math.abs(analogY)>.05
+    ){
+
+        azul.dirX=analogX;
+        azul.dirY=analogY;
+    }
+}
+
+function pararAnalogico(){
+
+    usandoAnalogico=false;
+
+    analogX=0;
+    analogY=0;
+
+    centro.style.transform=
+        "translate(0,0)";
+}
+
+analogico.addEventListener(
+    "pointerdown",
+    e=>{
+
+        e.preventDefault();
+
+        usandoAnalogico=true;
+
+        analogico.setPointerCapture(
+            e.pointerId
+        );
+
+        moverAnalogico(e);
+    }
+);
+
+analogico.addEventListener(
+    "pointermove",
+    e=>{
+
+        if(!usandoAnalogico)return;
+
+        e.preventDefault();
+
+        moverAnalogico(e);
+    }
+);
+
+analogico.addEventListener(
+    "pointerup",
+    pararAnalogico
+);
+
+analogico.addEventListener(
+    "pointercancel",
+    pararAnalogico
+);
+
+/* TECLADO */
+
+const teclas={};
+
+window.addEventListener(
+    "keydown",
+    e=>{
+
+        teclas[e.key.toLowerCase()]=true;
+
+        if(e.code==="Space"){
+
+            e.preventDefault();
+
+            chutar(azul);
+        }
+    }
+);
+
+window.addEventListener(
+    "keyup",
+    e=>{
+
+        teclas[e.key.toLowerCase()]=false;
+    }
+);
+
+/* MOVIMENTO AZUL */
+
+function moverAzul(){
+
+    let x=analogX;
+    let y=analogY;
+
+    if(
+        teclas["w"] ||
+        teclas["arrowup"]
+    ){
+        y=-1;
+    }
+
+    if(
+        teclas["s"] ||
+        teclas["arrowdown"]
+    ){
+        y=1;
+    }
+
+    if(
+        teclas["a"] ||
+        teclas["arrowleft"]
+    ){
+        x=-1;
+    }
+
+    if(
+        teclas["d"] ||
+        teclas["arrowright"]
+    ){
+        x=1;
+    }
+
+    if(x!==0 || y!==0){
+
+        const d=Math.hypot(x,y);
+
+        if(d>1){
+
+            x/=d;
+            y/=d;
+        }
+
+        azul.x+=
+            x*azul.velocidade;
+
+        azul.y+=
+            y*azul.velocidade;
+
+        azul.dirX=x;
+        azul.dirY=y;
+    }
+
+    limitarJogador(azul);
+}
+
+/* IA */
+
+function moverVermelho(){
+
+    const dx=
+        bola.x-vermelho.x;
+
+    const dy=
+        bola.y-vermelho.y;
+
+    const d=
+        Math.hypot(dx,dy);
+
+    if(d>35){
+
+        vermelho.x+=
+            (dx/d)*vermelho.velocidade;
+
+        vermelho.y+=
+            (dy/d)*vermelho.velocidade;
+
+        vermelho.dirX=dx/d;
+        vermelho.dirY=dy/d;
+    }
+
+    limitarJogador(vermelho);
+
+    if(d<65){
+
+        const agora=Date.now();
+
+        if(
+            agora-vermelho.ultimoChute>
+            900
+        ){
+
+            vermelho.ultimoChute=agora;
+
+            chutar(vermelho);
+        }
+    }
+}
+
+/* LIMITAR */
+
+function limitarJogador(j){
+
+    j.x=Math.max(
+        campo.x+j.r,
+        Math.min(
+            campo.x+campo.w-j.r,
+            j.x
+        )
+    );
+
+    j.y=Math.max(
+        campo.y+j.r,
+        Math.min(
+            campo.y+campo.h-j.r,
+            j.y
+        )
+    );
+}
+
+/* DISTÂNCIA */
+
+function distancia(a,b){
+
+    return Math.hypot(
+        a.x-b.x,
+        a.y-b.y
+    );
+}
+
+/* COLISÃO */
+
+function colisao(j){
+
+    const dx=
+        bola.x-j.x;
+
+    const dy=
+        bola.y-j.y;
+
+    let d=
+        Math.hypot(dx,dy);
+
+    const minimo=
+        j.r+bola.r;
+
+    if(d<minimo){
+
+        if(d===0)d=.01;
+
+        const nx=dx/d;
+        const ny=dy/d;
+
+        bola.x=
+            j.x+nx*minimo;
+
+        bola.y=
+            j.y+ny*minimo;
+
+        bola.vx+=nx*.45;
+        bola.vy+=ny*.45;
+    }
+}
+
+/* CHUTE */
+
+function chutar(j){
+
+    if(
+        esperandoReinicio ||
+        partidaTerminou
+    ){
+        return;
+    }
+
+    const d=
+        distancia(j,bola);
+
+    if(d<90){
+
+        let dx=j.dirX;
+        let dy=j.dirY;
+
+        if(
+            Math.hypot(dx,dy)<.1
+        ){
+
+            dx=j===azul?1:-1;
+            dy=0;
+        }
+
+        const forca=
+            j===azul?12:9;
+
+        bola.vx+=dx*forca;
+        bola.vy+=dy*forca;
+
+        bola.x+=dx*5;
+        bola.y+=dy*5;
+    }
+}
+
+/* BOTÃO */
+
+document.getElementById("chutar")
+.addEventListener(
+    "pointerdown",
+    e=>{
+
+        e.preventDefault();
+
+        chutar(azul);
+    }
+);
+
+/* FÍSICA */
+
+function atualizarBola(){
+
+    if(
+        esperandoReinicio ||
+        partidaTerminou
+    ){
+        return;
+    }
+
+    bola.x+=bola.vx;
+    bola.y+=bola.vy;
+
+    bola.vx*=.985;
+    bola.vy*=.985;
+
+    if(Math.abs(bola.vx)<.03){
+        bola.vx=0;
+    }
+
+    if(Math.abs(bola.vy)<.03){
+        bola.vy=0;
+    }
+
+    const golAltura=
+        campo.h*.32;
+
+    const golY=
+        campo.y+
+        (campo.h-golAltura)/2;
+
+    const dentroDoGol=
+        bola.y>golY &&
+        bola.y<golY+golAltura;
+
+    /* ESQUERDA */
+
+    if(bola.x<campo.x){
+
+        if(dentroDoGol){
+
+            gol("vermelho");
+
+            return;
+
+        }else{
+
+            bola.x=
+                campo.x+bola.r;
+
+            bola.vx=
+                Math.abs(bola.vx)*.7;
+        }
+    }
+
+    /* DIREITA */
+
+    if(
+        bola.x>
+        campo.x+campo.w
+    ){
+
+        if(dentroDoGol){
+
+            gol("azul");
+
+            return;
+
+        }else{
+
+            bola.x=
+                campo.x+
+                campo.w-
+                bola.r;
+
+            bola.vx=
+                -Math.abs(bola.vx)*.7;
+        }
+    }
+
+    /* CIMA */
+
+    if(
+        bola.y<
+        campo.y+bola.r
+    ){
+
+        bola.y=
+            campo.y+bola.r;
+
+        bola.vy=
+            Math.abs(bola.vy)*.75;
+    }
+
+    /* BAIXO */
+
+    if(
+        bola.y>
+        campo.y+
+        campo.h-
+        bola.r
+    ){
+
+        bola.y=
+            campo.y+
+            campo.h-
+            bola.r;
+
+        bola.vy=
+            -Math.abs(bola.vy)*.75;
+    }
+}
+
+/* ACRÉSCIMO */
+
+function iniciarAcrescimo(){
+
+    acrescimo=
+        Math.floor(Math.random()*7)+1;
+
+    mostrarMensagem(
+        "⏱️ ACRÉSCIMO +"+
+        acrescimo+"s"
+    );
+
+    tempoRestante=acrescimo;
+
+    atualizarTempo();
+
+    setTimeout(()=>{
+
+        if(
+            fase==="normal" &&
+            jogo
+        ){
+
+            finalizarTempoNormal();
+        }
+
+    },acrescimo*1000+100);
+}
+
+/* FINALIZAR NORMAL */
+
+function finalizarTempoNormal(){
+
+    if(
+        !jogo ||
+        partidaTerminou
+    ){
+        return;
+    }
+
+    if(
+        golsAzul===
+        golsVermelho
+    ){
+
+        iniciarProrrogacao();
+
+    }else{
+
+        finalizarPartida();
+    }
+}
+
+/* PRORROGAÇÃO */
+
+function iniciarProrrogacao(){
+
+    fase="prorrogacao";
+
+    tempoRestante=30;
+
+    acrescimo=0;
+
+    resetarPosicoes();
+
+    mostrarMensagem(
+        "⏱️ PRORROGAÇÃO!"
+    );
+
+    atualizarTempo();
+
+    clearInterval(intervaloTempo);
+
+    intervaloTempo=
+        setInterval(()=>{
+
+            if(
+                !jogo ||
+                partidaTerminou
+            ){
+                return;
+            }
+
+            tempoRestante--;
+
+            atualizarTempo();
+
+            if(tempoRestante<=0){
+
+                clearInterval(
+                    intervaloTempo
+                );
+
+                finalizarProrrogacao();
+            }
+
+        },1000);
+}
+
+/* FINAL DA PRORROGAÇÃO */
+
+function finalizarProrrogacao(){
+
+    if(
+        golsAzul===
+        golsVermelho
+    ){
+
+        finalizarPartida(true);
+
+    }else{
+
+        finalizarPartida();
+    }
+}
+
+/* FINALIZAR PARTIDA */
+
+function finalizarPartida(
+    aposProrrogacao=false
+){
+
+    if(partidaTerminou){
+        return;
+    }
+
+    partidaTerminou=true;
+
+    jogo=false;
+
+    clearInterval(
+        intervaloTempo
+    );
+
+    document.getElementById(
+        "analogico"
+    ).style.display="none";
+
+    document.getElementById(
+        "chutar"
+    ).style.display="none";
+
+    const fim=
+        document.getElementById("fim");
+
+    const titulo=
+        document.getElementById(
+            "tituloFim"
+        );
+
+    const resultado=
+        document.getElementById(
+            "resultadoFinal"
+        );
+
+    if(
+        golsAzul>
+        golsVermelho
+    ){
+
+        titulo.textContent=
+            "🔵 AZUL VENCEU!";
+
+    }else if(
+        golsVermelho>
+        golsAzul
+    ){
+
+        titulo.textContent=
+            "🔴 VERMELHO VENCEU!";
+
+    }else{
+
+        titulo.textContent=
+            "🤝 EMPATE!";
+    }
+
+    resultado.textContent=
+        "AZUL "+
+        golsAzul+
+        " - "+
+        golsVermelho+
+        " VERMELHO";
+
+    fim.style.display="flex";
+}
+
+/* RELÓGIO */
+
+function iniciarTempoNormal(){
+
+    fase="normal";
+
+    tempoRestante=90;
+
+    acrescimo=0;
+
+    atualizarTempo();
+
+    clearInterval(
+        intervaloTempo
+    );
+
+    intervaloTempo=
+        setInterval(()=>{
+
+            if(
+                !jogo ||
+                partidaTerminou
+            ){
+                return;
+            }
+
+            tempoRestante--;
+
+            atualizarTempo();
+
+            if(
+                tempoRestante<=0
+            ){
+
+                clearInterval(
+                    intervaloTempo
+                );
+
+                iniciarAcrescimo();
+            }
+
+        },1000);
+}
+
+/* CAMPO */
+
+function desenharCampo(){
+
+    ctx.fillStyle="#101010";
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+    ctx.fillStyle="#178b3d";
+
+    ctx.fillRect(
+        campo.x,
+        campo.y,
+        campo.w,
+        campo.h
+    );
+
+    const largura=
+        campo.w/10;
+
+    for(
+        let i=0;
+        i<10;
+        i++
+    ){
+
+        if(i%2===0){
+
+            ctx.fillStyle=
+                "rgba(255,255,255,.035)";
+
+            ctx.fillRect(
+                campo.x+i*largura,
+                campo.y,
+                largura,
+                campo.h
+            );
+        }
+    }
+
+    ctx.strokeStyle="white";
+    ctx.lineWidth=4;
+
+    ctx.strokeRect(
+        campo.x,
+        campo.y,
+        campo.w,
+        campo.h
+    );
+
+    /* MEIO */
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        campo.x+campo.w/2,
+        campo.y
+    );
+
+    ctx.lineTo(
+        campo.x+campo.w/2,
+        campo.y+campo.h
+    );
+
+    ctx.stroke();
+
+    /* CÍRCULO */
+
+    ctx.beginPath();
+
+    ctx.arc(
+        campo.x+campo.w/2,
+        campo.y+campo.h/2,
+        campo.h*.14,
+        0,
+        Math.PI*2
+    );
+
+    ctx.stroke();
+
+    /* PONTO */
+
+    ctx.fillStyle="white";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        campo.x+campo.w/2,
+        campo.y+campo.h/2,
+        5,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    /* ÁREAS */
+
+    const areaW=
+        campo.w*.13;
+
+    const areaH=
+        campo.h*.55;
+
+    ctx.strokeRect(
+        campo.x,
+        campo.y+
+        (campo.h-areaH)/2,
+        areaW,
+        areaH
+    );
+
+    ctx.strokeRect(
+        campo.x+
+        campo.w-areaW,
+        campo.y+
+        (campo.h-areaH)/2,
+        areaW,
+        areaH
+    );
+
+    /* GOLS */
+
+    const golAltura=
+        campo.h*.32;
+
+    const golLargura=30;
+
+    const golY=
+        campo.y+
+        (campo.h-golAltura)/2;
+
+    ctx.fillStyle=
+        "rgba(255,255,255,.18)";
+
+    ctx.fillRect(
+        campo.x-golLargura,
+        golY,
+        golLargura,
+        golAltura
+    );
+
+    ctx.fillRect(
+        campo.x+campo.w,
+        golY,
+        golLargura,
+        golAltura
+    );
+
+    ctx.strokeStyle="white";
+
+    ctx.strokeRect(
+        campo.x-golLargura,
+        golY,
+        golLargura,
+        golAltura
+    );
+
+    ctx.strokeRect(
+        campo.x+campo.w,
+        golY,
+        golLargura,
+        golAltura
+    );
+}
+
+/* JOGADOR */
+
+function desenharJogador(j){
+
+    ctx.fillStyle=
+        "rgba(0,0,0,.3)";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        j.x,
+        j.y+j.r*.8,
+        j.r*.9,
+        j.r*.35,
+        0,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.fillStyle=j.cor;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        j.x,
+        j.y,
+        j.r,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.strokeStyle="white";
+    ctx.lineWidth=3;
+
+    ctx.stroke();
+
+    /* OLHO */
+
+    const olhoX=
+        j.x+j.dirX*8;
+
+    const olhoY=
+        j.y+j.dirY*8;
+
+    ctx.fillStyle="white";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        olhoX,
+        olhoY,
+        8,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.fillStyle="#111";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        olhoX+j.dirX*3,
+        olhoY+j.dirY*3,
+        3,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+}
+
+/* BOLA */
+
+function desenharBola(){
+
+    ctx.fillStyle=
+        "rgba(0,0,0,.3)";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        bola.x,
+        bola.y+bola.r*.8,
+        bola.r,
+        bola.r*.35,
+        0,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.fillStyle="white";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        bola.x,
+        bola.y,
+        bola.r,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.strokeStyle="#222";
+    ctx.lineWidth=2;
+
+    ctx.stroke();
+
+    ctx.fillStyle="#222";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        bola.x,
+        bola.y,
+        bola.r*.27,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    for(
+        let i=0;
+        i<5;
+        i++
+    ){
+
+        const a=
+            i*Math.PI*2/5;
+
+        const x=
+            bola.x+
+            Math.cos(a)*
+            bola.r*.65;
+
+        const y=
+            bola.y+
+            Math.sin(a)*
+            bola.r*.65;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            bola.r*.12,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            bola.x+
+            Math.cos(a)*
+            bola.r*.25,
+
+            bola.y+
+            Math.sin(a)*
+            bola.r*.25
+        );
+
+        ctx.lineTo(x,y);
+
+        ctx.stroke();
+    }
+}
+
+/* DESENHAR */
+
+function desenhar(){
+
+    desenharCampo();
+
+    desenharJogador(azul);
+
+    desenharJogador(vermelho);
+
+    desenharBola();
+}
+
+/* LOOP */
+
+function loop(){
+
+    if(
+        jogo &&
+        !partidaTerminou
+    ){
+
+        moverAzul();
+
+        moverVermelho();
+
+        colisao(azul);
+
+        colisao(vermelho);
+
+        atualizarBola();
+    }
+
+    desenhar();
+
+    requestAnimationFrame(loop);
+}
+
+/* NOVA PARTIDA */
+
+function iniciarPartida(){
+
+    jogo=true;
+
+    partidaTerminou=false;
+
+    esperandoReinicio=false;
+
+    golsAzul=0;
+    golsVermelho=0;
+
+    atualizarPlacar();
+
+    resetarPosicoes();
+
+    document.getElementById(
+        "menu"
+    ).style.display="none";
+
+    document.getElementById(
+        "fim"
+    ).style.display="none";
+
+    document.getElementById(
+        "hud"
+    ).style.display="block";
+
+    document.getElementById(
+        "analogico"
+    ).style.display="block";
+
+    document.getElementById(
+        "chutar"
+    ).style.display="block";
+
+    iniciarTempoNormal();
+}
+
+/* JOGAR */
+
+document.getElementById("jogar")
+.addEventListener(
+    "click",
+    ()=>{
+        iniciarPartida();
+    }
+);
+
+/* NOVAMENTE */
+
+document.getElementById("novoJogo")
+.addEventListener(
+    "click",
+    ()=>{
+        iniciarPartida();
+    }
+);
+
+/* COMEÇAR */
+
+resize();
+
+resetarPosicoes();
+
+desenhar();
+
+loop();
+
+</script>
+
+</body>
+</html>
